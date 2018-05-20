@@ -1,8 +1,13 @@
 import sqlite3 as sql
 
-OBJ_FIELD_LIST=["PREFIX TEXT","OBJECT TEXT","OTHER TEXT","TYPE TEXT","CON TEXT","RA","DEC","MAG REAL","SUBR TEXT",
+OBJ_FIELD_LIST=["PREFIX TEXT","OBJECT TEXT","OTHER TEXT","TYPE TEXT","CON TEXT","RA TEXT","DEC TEXT","MAG REAL","SUBR TEXT",
                 "U2K TEXT","TI TEXT","SIZE_MAX TEXT","SIZE_MIN TEXT","PA TEXT",
                 "CLASS TEXT","NSTS TEXT","BRSTR TEXT","BCHM TEXT","NGC_DESCR TEXT","NOTES TEXT"]
+
+OBJ_FIELD_NAME=["PREFIX","OBJECT","OTHER","TYPE","CON","RA","DEC","MAG REAL","SUBR",
+                "U2K","TI","SIZE_MAX","SIZE_MIN","PA",
+                "CLASS","NSTS","BRSTR","BCHM","NGC_DESCR","NOTES"]
+
 
 AL_DB='./astroListDB.sqlite'
 
@@ -55,10 +60,15 @@ def createObjTableFromCSV(sourceFile='/Users/rich/Documents/Astronomy/lists/SAC_
         conn.commit()
 
     f.close()
+
+
+
+    c.execute("CREATE INDEX OBJNAME ON {0} (PREFIX, OBJECT)".format(tableName))
+    conn.commit()
     conn.close()
 
 
-def executeQuery(query,limit=10):
+def executeQuery(query):
     """
     Quick utility function to query the DB
     :param query:
@@ -73,5 +83,4 @@ def executeQuery(query,limit=10):
     c=dbConn.cursor()
     c.execute(query)
 
-    for row in c.fetchmany(limit):
-        print row
+    return c.fetchall()
