@@ -1,6 +1,7 @@
 from Tkinter import *
 import constDict
 import alUtils
+from alConfig import *
 
 BUTTON_BG='#330000'
 BUTTON_FG='#990000'
@@ -61,9 +62,9 @@ class ALObjectInfo(object):
             self._parent = newParent
         else:
             self._layout.destroy()
-            self._createLayout()
 
 
+        self._createLayout()
         #OBject Name
         tmpW=Label(self._layout)
         tmpW.configure(text=self._oInfo('PREFIX') + ' ' + self._oInfo('OBJECT'), font=OBJ_NAME_FONT,
@@ -102,11 +103,11 @@ class ALObjectInfo(object):
 
     def keyHandle(self,keyEvent):
         print "DATA KEY: %s - %s" % (keyEvent.keycode, keyEvent.char)
-        if keyEvent.char=='=':
+        if keyEvent.keycode==KEY_B04:
             self._listIndex-=1
             if self._listIndex < 0:
                 self._listIndex=0
-        if keyEvent.char=='-':
+        if keyEvent.keycode==KEY_B05:
             self._listIndex+=1
             if self._listIndex > len(self._objectList) - 1:
                 self._listIndex=len(self._objectList) -1
@@ -216,7 +217,7 @@ class AstroList(object):
         self.button3.grid(column=2, row=0, sticky=N+S+E+W)
 
         self.button4 = Label(self._mainLayout)
-        self.button4.configure(text="", font=BUTTON_FONT, background=BUTTON_BG, foreground=BUTTON_FG,
+        self.button4.configure(text="CHART", font=BUTTON_FONT, background=BUTTON_BG, foreground=BUTTON_FG,
                                height=BUTTON_HEIGHT, width=BUTTON_WIDTH, highlightthickness=BUTTON_BORDER,
                                highlightbackground=BUTTON_BORDER_COLOR, highlightcolor=BUTTON_BORDER_COLOR)
         self.button4.grid(column=3, row=0, columnspan=2, sticky=N+S+E+W)
@@ -258,7 +259,7 @@ class AstroList(object):
     def _keyHandle(self, keyEvent):
         print "KEY: %s - %s" % (keyEvent.keycode,keyEvent.char)
 
-        if keyEvent.char=='/':
+        if keyEvent.keycode==KEY_B01:
             #Filter
             if self._dataObject.dataType()=='FILTER':
                 #Restore previous data objet
@@ -270,10 +271,13 @@ class AstroList(object):
                 self._clearData()
                 self._dataObject=FilterPane(self._dataFrame,self._filter)
 
-        if self._dataObject.dataType()=='MAIN' and keyEvent.char.isdigit():
-            if keyEvent.char=='1':
-                self._clearData()
-                self._dataObject=ALObjectInfo(self._dataFrame, self._filter)
+        elif keyEvent.keycode in KEY_NUM_LIST:
+            #Numeric keys, decode for convinience
+            num=KEY_NUM_LIST.index(keyEvent.keycode)
+            if self._dataObject.dataType()=='MAIN':
+                if num==1:
+                    self._clearData()
+                    self._dataObject=ALObjectInfo(self._dataFrame, self._filter)
 
         else:
             #Pass through to data objects

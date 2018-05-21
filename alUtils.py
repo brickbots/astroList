@@ -1,4 +1,6 @@
 import sqlite3 as sql
+import os
+from alConfig import *
 
 OBJ_FIELD_LIST=["PREFIX TEXT","OBJECT TEXT","OTHER TEXT","TYPE TEXT","CON TEXT","RA TEXT","DEC TEXT","MAG REAL","SUBR TEXT",
                 "U2K TEXT","TI TEXT","SIZE_MAX TEXT","SIZE_MIN TEXT","PA TEXT",
@@ -9,7 +11,6 @@ OBJ_FIELD_NAME=["PREFIX","OBJECT","OTHER","TYPE","CON","RA","DEC","MAG REAL","SU
                 "CLASS","NSTS","BRSTR","BCHM","NGC_DESCR","NOTES"]
 
 
-AL_DB='./astroListDB.sqlite'
 
 dbConn=None
 
