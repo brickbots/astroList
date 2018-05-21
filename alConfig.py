@@ -4,7 +4,40 @@ Specific config options, mainly for my OSX vs. Raspbian stuff
 
 import platform
 
-if platform.system()=='linux':
+#GENERAL LOOK AND FEEL
+
+BUTTON_BG='#330000'
+BUTTON_FG='#990000'
+BUTTON_FONT=('Arial Unicode MS', -16, 'bold')
+BUTTON_WIDTH=10
+BUTTON_HEIGHT=2
+BUTTON_BORDER=2
+BUTTON_BORDER_COLOR='#000000'
+
+DATA_FG_BRIGHT='#EE1111'
+DATA_FG='#AA0000'
+
+DATA_BG='#000000'
+
+MENU_BG='#000000'
+MENU_FG='#990000'
+MENU_FONT=('Arial Unicode MS', -25, 'bold')
+MENU_WIDTH=20
+MENU_HEIGHT=2
+MENU_BORDER=2
+MENU_BORDER_COLOR='#000000'
+
+OBJ_NAME_FONT=('Arial Black', -30, 'bold')
+OBJ_LABEL_FONT=('Arial Unicode MS', -18, 'bold')
+OBJ_DATA_FONT=('Arial Unicode MS', -18, 'bold')
+OBJ_HEADING_FONT=('Arial Black', -20, 'normal')
+
+DATA_WIDTH=440
+DATA_HEIGHT=554
+
+
+
+if platform.system()=='Linux':
     AL_DB = '/home/pi/python/astroList/astroListDB.sqlite'
 
     KEY_B01=106 #/
@@ -20,7 +53,7 @@ if platform.system()=='linux':
 
 
 else:
-    AL_DB = '/home/users/rich/Documents/pthon/astroList/astroListDB.sqlite'
+    AL_DB = '/Users/rich/python/astroList/astroListDB.sqlite'
 
     KEY_B01 = 2228329  # i
     KEY_B02 = 2031727  # o

@@ -1,5 +1,4 @@
 import sqlite3 as sql
-import os
 from alConfig import *
 
 OBJ_FIELD_LIST=["PREFIX TEXT","OBJECT TEXT","OTHER TEXT","TYPE TEXT","CON TEXT","RA TEXT","DEC TEXT","MAG REAL","SUBR TEXT",

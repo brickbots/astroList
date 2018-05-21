@@ -1,121 +1,6 @@
 from Tkinter import *
-import constDict
-import alUtils
 from alConfig import *
-
-BUTTON_BG='#330000'
-BUTTON_FG='#990000'
-BUTTON_FONT=('Arial Unicode MS', -16, 'bold')
-BUTTON_WIDTH=10
-BUTTON_HEIGHT=2
-BUTTON_BORDER=2
-BUTTON_BORDER_COLOR='#000000'
-
-DATA_FG='#EE1111'
-DATA_BG='#000000'
-
-MENU_BG='#000000'
-MENU_FG='#990000'
-MENU_FONT=('Arial Unicode MS', -25, 'bold')
-MENU_WIDTH=20
-MENU_HEIGHT=2
-MENU_BORDER=2
-MENU_BORDER_COLOR='#000000'
-
-OBJ_NAME_FONT=('Arial Black', -30, 'bold')
-OBJ_LABEL_FONT=('Arial Unicode MS', -18, 'bold')
-OBJ_DATA_FONT=('Arial Unicode MS', -18, 'bold')
-OBJ_HEADING_FONT=('Arial Black', -20, 'normal')
-
-DATA_WIDTH=440
-DATA_HEIGHT=554
-
-class ALObjectInfo(object):
-    def __init__(self, parent, filterObject):
-        self._parent=parent
-        self._filter=filterObject
-        self._objectList=[]
-        self._listIndex=0
-        self._mode=0 #0= DEtails, 1= Image!
-        self._createLayout()
-        self._getList()
-        self.draw()
-
-    def _createLayout(self):
-        self._layout=Frame(self._parent)
-        self._layout.configure(background=DATA_BG, width=DATA_WIDTH, height=DATA_HEIGHT)
-
-        self._layout.grid_propagate(0)
-        self._layout.grid(sticky=N+S+E+W)
-
-    def _oInfo(self, name):
-        """
-        Returns the field specified by name
-        :param name:
-        :return: value of the field
-        """
-        curObj = self._objectList[self._listIndex]
-        return curObj[alUtils.OBJ_FIELD_NAME.index(name)]
-
-    def draw(self, newParent=None):
-        if newParent:
-            self._parent = newParent
-        else:
-            self._layout.destroy()
-
-
-        self._createLayout()
-        #OBject Name
-        tmpW=Label(self._layout)
-        tmpW.configure(text=self._oInfo('PREFIX') + ' ' + self._oInfo('OBJECT'), font=OBJ_NAME_FONT,
-                       foreground=DATA_FG, background=DATA_BG, anchor=W)
-        tmpW.grid(row=0,column=0, columnspan=4, sticky=W+E)
-
-        #Alternate NAme
-        tmpW = Label(self._layout)
-        tmpW.configure(text=self._oInfo('OTHER'), font=OBJ_HEADING_FONT, foreground=DATA_FG,
-                       background=DATA_BG, anchor=W)
-        tmpW.grid(row=1, column=0, columnspan=4, sticky=W+E)
-
-        #Spacer
-        tmpW = Label(self._layout)
-        tmpW.configure(text=' ', font=BUTTON_FONT, foreground=DATA_FG,
-                       background=DATA_BG, anchor=W)
-        tmpW.grid(row=2, column=0, columnspan=4, sticky=W + E)
-
-        #Type
-        tmpW = Label(self._layout)
-        tmpW.configure(text='Type:', font=OBJ_LABEL_FONT, foreground=DATA_FG,
-                       background=DATA_BG, anchor=W)
-        tmpW.grid(row=3, column=0, sticky=W + E)
-        tmpW = Label(self._layout)
-        tmpW.configure(text=self._oInfo('TYPE'), font=OBJ_DATA_FONT, foreground=DATA_FG,
-                       background=DATA_BG, anchor=W)
-        tmpW.grid(row=3, column=1, sticky=W + E)
-
-
-        #notes
-
-    def _getList(self):
-        #need to do filtering here, but for now, get the WHOLE list
-        self._objectList=alUtils.executeQuery("SELECT * FROM OBJECTS ORDER BY MAG")
-        self._listIndex=0
-
-    def keyHandle(self,keyEvent):
-        print "DATA KEY: %s - %s" % (keyEvent.keycode, keyEvent.char)
-        if keyEvent.keycode==KEY_B04:
-            self._listIndex-=1
-            if self._listIndex < 0:
-                self._listIndex=0
-        if keyEvent.keycode==KEY_B05:
-            self._listIndex+=1
-            if self._listIndex > len(self._objectList) - 1:
-                self._listIndex=len(self._objectList) -1
-
-        self.draw()
-
-    def dataType(self):
-        return "OBJECT"
+import astroObjList
 
 class ALMenu(object):
     def __init__(self,parent, menuItemList=None):
@@ -277,7 +162,7 @@ class AstroList(object):
             if self._dataObject.dataType()=='MAIN':
                 if num==1:
                     self._clearData()
-                    self._dataObject=ALObjectInfo(self._dataFrame, self._filter)
+                    self._dataObject=astroObjList.ALObjectInfo(self._dataFrame, self._filter)
 
         else:
             #Pass through to data objects
