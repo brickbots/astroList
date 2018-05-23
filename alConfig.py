@@ -40,6 +40,7 @@ DATA_HEIGHT=554
 if platform.system()=='Linux':
     AL_DB = '/home/pi/python/astroList/astroListDB.sqlite'
     PICTURE_PATH = '/home/pi/SAC_png'
+    IMAGE_SIZE_FONT=['/usr/share/fonts/truetype/freefont/FreeSansBold.ttf',20]
 
 
     KEY_B01=106 #/
