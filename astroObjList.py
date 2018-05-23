@@ -2,6 +2,8 @@ from alConfig import *
 from Tkinter import *
 from alConstants import *
 import alUtils
+from PIL import Image, ImageTk, ImageFont, ImageDraw
+import os
 
 class ALObjectInfo(object):
     def __init__(self, parent, filterObject):
@@ -30,6 +32,65 @@ class ALObjectInfo(object):
         curObj = self._objectList[self._listIndex]
         return curObj[alUtils.OBJ_FIELD_NAME.index(name)]
 
+    def _showImage(self, parent):
+        # Add image
+        imageName=self._oInfo('PREFIX') + self._oInfo('OBJECT')
+        imageFile = '%s/%s.png' % (PICTURE_PATH, imageName)
+
+        if not os.path.exists(imageFile):
+
+            imageName = self._oInfo('OTHER').replace(' ','')
+            imageFile = '%s/%s.png' % (PICTURE_PATH, imageName)
+
+        if os.path.exists(imageFile):
+
+            imgObj=Image.open(imageFile).convert('RGB')
+
+            #Add object dimensions
+            font = ImageFont.truetype(IMAGE_SIZE_FONT[0], IMAGE_SIZE_FONT[1])
+
+            # Drawing the text on the picture
+            if self._oInfo('SIZE_MIN') <> '':
+                sizeString="%s x %s" % (self._oInfo('SIZE_MAX'), self._oInfo('SIZE_MIN'))
+            else:
+                sizeString=self._oInfo('SIZE_MAX')
+
+            draw = ImageDraw.Draw(imgObj)
+            draw.text((280,400), sizeString, fill=(220,0,0), font=font)
+            #ImageDraw.Draw(self._imageObj)
+
+
+            self._imageObj = ImageTk.PhotoImage(imgObj)
+
+            # get the image size
+            w = self._imageObj.width()
+            h = self._imageObj.height()
+            self._imagePanel = Label(parent, image=self._imageObj, width=w, height=h, background=DATA_BG, anchor=W)
+            self._imagePanel.grid(row=0, column=0, sticky=W + E + N + S)
+
+    def _showDetails(self, parent):
+        # Type
+        tmpW = Label(parent)
+        tmpW.configure(text='Type:', font=OBJ_LABEL_FONT, foreground=DATA_FG,
+                       background=DATA_BG)
+        tmpW.grid(row=0, column=0, sticky=W + E)
+        tmpW = Label(self._layout)
+        tmpW.configure(text=OBJ_TYPES[self._oInfo('TYPE')], font=OBJ_DATA_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=W)
+        tmpW.grid(row=0, column=1, columnspan=3, sticky=W + E)
+
+        # CONST
+        tmpW = Label(self._layout)
+        tmpW.configure(text='Const:', font=OBJ_LABEL_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=E)
+        tmpW.grid(row=1, column=0, sticky=W + E)
+        tmpW = Label(self._layout)
+        tmpW.configure(text=CONSTELLATIONS[self._oInfo('CON')], font=OBJ_DATA_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=W, width=45)
+        tmpW.grid(row=1, column=1, columnspan=3, sticky=W + E)
+
+        # notes
+
     def draw(self, newParent=None):
         if newParent:
             self._parent = newParent
@@ -38,10 +99,6 @@ class ALObjectInfo(object):
 
 
         self._createLayout()
-
-
-
-
 
         #OBject Name
         tmpW=Label(self._layout)
@@ -76,27 +133,17 @@ class ALObjectInfo(object):
                        background=DATA_BG, anchor=W, width=15)
         tmpW.grid(row=2, column=3)
         """
-        #Type
-        tmpW = Label(self._layout)
-        tmpW.configure(text='Type:', font=OBJ_LABEL_FONT, foreground=DATA_FG,
-                       background=DATA_BG,  anchor=E)
-        tmpW.grid(row=3, column=0, sticky=W + E)
-        tmpW = Label(self._layout)
-        tmpW.configure(text=OBJ_TYPES[self._oInfo('TYPE')], font=OBJ_DATA_FONT, foreground=DATA_FG,
-                       background=DATA_BG, anchor=W)
-        tmpW.grid(row=3, column=1, columnspan=3,  sticky=W + E)
 
-        # CONST
-        tmpW = Label(self._layout)
-        tmpW.configure(text='Const:', font=OBJ_LABEL_FONT, foreground=DATA_FG,
-                       background=DATA_BG, anchor=E)
-        tmpW.grid(row=4, column=0, sticky=W + E)
-        tmpW = Label(self._layout)
-        tmpW.configure(text=CONSTELLATIONS[self._oInfo('CON')], font=OBJ_DATA_FONT, foreground=DATA_FG,
-                       background=DATA_BG, anchor=W, width=45)
-        tmpW.grid(row=4, column=1, columnspan=3,  sticky=W + E)
+        #Detail container
+        self._detailsLayout=Frame(self._layout)
+        self._detailsLayout.configure(background=DATA_BG, width=DATA_WIDTH, height=DATA_HEIGHT - 90)
 
-        #notes
+        self._detailsLayout.grid_propagate(0)
+        self._detailsLayout.grid(sticky=N+S+E+W)
+
+        self._showImage(self._detailsLayout)
+
+        return
 
     def _getList(self):
         #need to do filtering here, but for now, get the WHOLE list
