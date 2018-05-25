@@ -29,3 +29,5 @@ OBJ_TYPES={"ASTER":"Asterism", "BRTNB":"Bright Nebula", "CL+NB":"Cluster with Ne
            "SMCCN":"Cluster with Nebulosity in the SMC","SMCDN":"Diffuse Nebula in the SMC",
            "SMCGC":"Globular Cluster in the SMC","SMCOC":"Open cluster in the SMC","SNREM":"Supernova Remnant",
            "QUASR":"Quasar"}
+
+MAIN_PREFIXES=['IC', 'M', 'Mel', 'NGC']

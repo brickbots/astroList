@@ -83,52 +83,71 @@ class AstroList(object):
         self._mainLayout.grid_propagate(0)
         self._mainLayout.grid()
 
-        self.button1 = Label(self._mainLayout )
-        self.button1.configure(text="CLOSE", font=BUTTON_FONT, background=BUTTON_BG, foreground=BUTTON_FG,
+        self.button0 = Label(self._mainLayout )
+        self.button0.configure(text="CLOSE", font=BUTTON_FONT, background=BUTTON_BG, foreground=BUTTON_FG,
                                height=BUTTON_HEIGHT, width=BUTTON_WIDTH, highlightthickness=BUTTON_BORDER,
                                highlightbackground=BUTTON_BORDER_COLOR, highlightcolor=BUTTON_BORDER_COLOR)
-        self.button1.grid(column=0, row=0, sticky=N+S+E+W)
+        self.button0.grid(column=0, row=0, sticky=N+S+E+W)
 
-        self.button2 = Label(self._mainLayout )
-        self.button2.configure(text="FILTER", font=BUTTON_FONT, background=BUTTON_BG, foreground=BUTTON_FG,
+        self.button1 = Label(self._mainLayout )
+        self.button1.configure(text="FILTER", font=BUTTON_FONT, background=BUTTON_BG, foreground=BUTTON_FG,
                                height=BUTTON_HEIGHT, width=BUTTON_WIDTH, highlightthickness=BUTTON_BORDER,
                                highlightbackground=BUTTON_BORDER_COLOR, highlightcolor=BUTTON_BORDER_COLOR)
-        self.button2.grid(column=1, row=0, sticky=N+S+E+W)
+        self.button1.grid(column=1, row=0, sticky=N+S+E+W)
+
+        self.button2 = Label(self._mainLayout)
+        self.button2.configure(text="SORT", font=BUTTON_FONT, background=BUTTON_BG, foreground=BUTTON_FG,
+                               height=BUTTON_HEIGHT, width=BUTTON_WIDTH, highlightthickness=BUTTON_BORDER,
+                               highlightbackground=BUTTON_BORDER_COLOR, highlightcolor=BUTTON_BORDER_COLOR)
+        self.button2.grid(column=2, row=0, sticky=N+S+E+W)
 
         self.button3 = Label(self._mainLayout)
-        self.button3.configure(text="SORT", font=BUTTON_FONT, background=BUTTON_BG, foreground=BUTTON_FG,
-                               height=BUTTON_HEIGHT, width=BUTTON_WIDTH, highlightthickness=BUTTON_BORDER,
+        self.button3.configure(text="UP", font=BUTTON_FONT, background=BUTTON_BG, foreground=BUTTON_FG,
+                               height=BUTTON_HEIGHT, width=6, highlightthickness=BUTTON_BORDER,
                                highlightbackground=BUTTON_BORDER_COLOR, highlightcolor=BUTTON_BORDER_COLOR)
-        self.button3.grid(column=2, row=0, sticky=N+S+E+W)
+        self.button3.grid(column=4, row=0, columnspan=1, sticky=N+S+E)
 
         self.button4 = Label(self._mainLayout)
-        self.button4.configure(text="CHART", font=BUTTON_FONT, background=BUTTON_BG, foreground=BUTTON_FG,
-                               height=BUTTON_HEIGHT, width=BUTTON_WIDTH, highlightthickness=BUTTON_BORDER,
+        self.button4.configure(text="DN", font=BUTTON_FONT, background=BUTTON_BG, foreground=BUTTON_FG,
+                               height=BUTTON_HEIGHT * 2, width=6, highlightthickness=BUTTON_BORDER,
                                highlightbackground=BUTTON_BORDER_COLOR, highlightcolor=BUTTON_BORDER_COLOR)
-        self.button4.grid(column=3, row=0, columnspan=2, sticky=N+S+E+W)
+        self.button4.grid(column=4, row=1, sticky=N+S+E+W)
 
         self.button5 = Label(self._mainLayout)
         self.button5.configure(text="", font=BUTTON_FONT, background=BUTTON_BG, foreground=BUTTON_FG,
-                               height=BUTTON_HEIGHT * 4, width=6, highlightthickness=BUTTON_BORDER,
+                               height=BUTTON_HEIGHT * 2, width=6, highlightthickness=BUTTON_BORDER,
                                highlightbackground=BUTTON_BORDER_COLOR, highlightcolor=BUTTON_BORDER_COLOR)
-        self.button5.grid(column=4, row=1, rowspan=2, sticky=N+S+E+W)
+        self.button5.grid(column=4, row=2, sticky=N+S+E+W)
 
         self.button6 = Label(self._mainLayout)
         self.button6.configure(text="", font=BUTTON_FONT, background=BUTTON_BG, foreground=BUTTON_FG,
-                               height=BUTTON_HEIGHT * 4, width=6, highlightthickness=BUTTON_BORDER,
+                               height=BUTTON_HEIGHT * 2, width=6, highlightthickness=BUTTON_BORDER,
                                highlightbackground=BUTTON_BORDER_COLOR, highlightcolor=BUTTON_BORDER_COLOR)
-        self.button6.grid(column=4, row=3, rowspan=2, sticky=N+S+E+W)
+        self.button6.grid(column=4, row=3, sticky=N + S + E + W)
+
+        self.button7 = Label(self._mainLayout)
+        self.button7.configure(text="", font=BUTTON_FONT, background=BUTTON_BG, foreground=BUTTON_FG,
+                               height=BUTTON_HEIGHT * 2, width=6, highlightthickness=BUTTON_BORDER,
+                               highlightbackground=BUTTON_BORDER_COLOR, highlightcolor=BUTTON_BORDER_COLOR)
+        self.button7.grid(column=4, row=4, sticky=N + S + E + W)
 
         self.cornerSpace=Label(self._mainLayout)
         self.cornerSpace.configure(text="", font=BUTTON_FONT, background=DATA_BG, foreground=DATA_FG,
                                    height=BUTTON_HEIGHT, width=6, highlightthickness=BUTTON_BORDER,
                                    highlightbackground=BUTTON_BORDER_COLOR, highlightcolor=BUTTON_BORDER_COLOR)
-        self.cornerSpace.grid(column=5, row=5)
+        self.cornerSpace.grid(column=4, row=5)
 
         self._dataFrame=None
         self._clearData() #also ends up creating frame
         self._dataObject=MainMenu(self._dataFrame)
         self._mainLayout.focus_set()
+
+    def setStatus(self, statusText):
+        print "STATUS:" + statusText
+
+    def setButton(self, buttonNo, buttonText):
+        buttonText='\\n'.join(buttonText)
+        eval('self.button%i.configure(text="%s")' % (buttonNo, buttonText))
 
     def _clearData(self):
         self._dataObject=None
@@ -162,7 +181,9 @@ class AstroList(object):
             if self._dataObject.dataType()=='MAIN':
                 if num==1:
                     self._clearData()
-                    self._dataObject=astroObjList.ALObjectInfo(self._dataFrame, self._filter)
+                    self._dataObject=astroObjList.ALObjectInfo(self._dataFrame, self._filter, self.setButton, self.setStatus)
+            elif self._dataObject.dataType() == 'OBJECT':
+                self._dataObject.keyHandle(keyEvent)
 
         else:
             #Pass through to data objects
