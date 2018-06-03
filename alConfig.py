@@ -28,9 +28,10 @@ MENU_BORDER=2
 MENU_BORDER_COLOR='#000000'
 
 OBJ_NAME_FONT=('Arial Black', -30, 'bold')
-OBJ_LABEL_FONT=('Arial Unicode MS', -18, 'bold')
+OBJ_LABEL_FONT=('Arial Unicode MS', -18, 'normal')
 OBJ_DATA_FONT=('Arial Unicode MS', -18, 'bold')
 OBJ_HEADING_FONT=('Arial Black', -20, 'normal')
+OBJ_MONO_FONT=('Courier', -20, 'normal')
 
 DATA_WIDTH=440
 DATA_HEIGHT=554

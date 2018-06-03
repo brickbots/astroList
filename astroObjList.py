@@ -4,6 +4,8 @@ from alConstants import *
 import alUtils
 from PIL import Image, ImageTk, ImageFont, ImageDraw
 import os
+import alSkyChart
+import textwrap
 
 class ALObjectInfo(object):
     def __init__(self, parent, filterObject, buttonMethod, statusMethod):
@@ -20,6 +22,7 @@ class ALObjectInfo(object):
         self._searchPrefixIndex=3
         self._searchObject=''
         self._disiplayMode='info'
+        self._skyChart=alSkyChart.SkyChartControl()
         self.draw()
 
 
@@ -90,31 +93,175 @@ class ALObjectInfo(object):
             self._imagePanel = Label(parent, image=self._imageObj, width=w, height=h, background=DATA_BG, anchor=W)
             self._imagePanel.grid(row=0, column=0, sticky=W + E + N + S)
 
+    def _formatCats(self, cats):
+        catList=['B','M', 'H', 'C']
+
+        catString=''.join(catList)
+
+        for c in catList:
+            if c not in cats:
+                catString=catString.replace(c, ' ')
+
+        return catString
+
     def _showDetails(self, parent):
         self._buttonMethod(5,'IMAGE')
 
-        # Type
+        tmpRow=0
+
+        # Type / RA
         tmpW = Label(parent)
         tmpW.configure(text='Type:', font=OBJ_LABEL_FONT, foreground=DATA_FG,
-                       background=DATA_BG)
-        tmpW.grid(row=0, column=0, sticky=W + E)
+                       background=DATA_BG, anchor=E)
+        tmpW.grid(row=tmpRow, column=0, sticky=W + E)
+        tmpW = Label(parent)
+        tmpW.configure(text=OBJ_TYPES.get(self._oInfo('TYPE'), 'OTHER'), font=OBJ_DATA_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=W)
+        tmpW.grid(row=tmpRow, column=1, sticky=W + E)
 
         tmpW = Label(parent)
-        tmpW.configure(text=OBJ_TYPES[self._oInfo('TYPE')], font=OBJ_DATA_FONT, foreground=DATA_FG,
+        tmpW.configure(text='RA:', font=OBJ_LABEL_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=E)
+        tmpW.grid(row=tmpRow, column=2, sticky=W + E)
+        tmpW = Label(parent)
+        tmpW.configure(text=self._oInfo('RA'), font=OBJ_DATA_FONT, foreground=DATA_FG,
                        background=DATA_BG, anchor=W)
-        tmpW.grid(row=0, column=1, columnspan=3, sticky=W + E)
+        tmpW.grid(row=tmpRow, column=3, sticky=W + E)
+        tmpRow+=1
 
-        # CONST
+        # CONST / DEC
         tmpW = Label(parent)
         tmpW.configure(text='Const:', font=OBJ_LABEL_FONT, foreground=DATA_FG,
                        background=DATA_BG, anchor=E)
-        tmpW.grid(row=1, column=0, sticky=W + E)
+        tmpW.grid(row=tmpRow, column=0, sticky=W + E)
         tmpW = Label(parent)
         tmpW.configure(text=CONSTELLATIONS[self._oInfo('CON')], font=OBJ_DATA_FONT, foreground=DATA_FG,
-                       background=DATA_BG, anchor=W, width=45)
-        tmpW.grid(row=1, column=1, columnspan=3, sticky=W + E)
+                       background=DATA_BG, anchor=W, width=25)
+        tmpW.grid(row=tmpRow, column=1,  sticky=W + E)
+
+        tmpW = Label(parent)
+        tmpW.configure(text='DEC:', font=OBJ_LABEL_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=E)
+        tmpW.grid(row=tmpRow, column=2, sticky=W + E)
+        tmpW = Label(parent)
+        tmpW.configure(text=self._oInfo('DEC'), font=OBJ_DATA_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=W)
+        tmpW.grid(row=tmpRow, column=3,  sticky=W + E)
+        tmpRow += 1
+
+        # Line Break
+        tmpW = Label(parent)
+        tmpW.configure(text='', font=OBJ_DATA_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=W)
+        tmpW.grid(row=tmpRow, column=0, columnspan=4, sticky=W + E)
+        tmpRow += 1
+
+
+        # Size / Mag
+        if self._oInfo('SIZE_MIN') <> '':
+            sizeString = "%s x %s" % (self._oInfo('SIZE_MAX'), self._oInfo('SIZE_MIN'))
+        else:
+            sizeString = self._oInfo('SIZE_MAX')
+
+        tmpW = Label(parent)
+        tmpW.configure(text='Size:', font=OBJ_LABEL_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=E)
+        tmpW.grid(row=tmpRow, column=0, sticky=W + E)
+        tmpW = Label(parent)
+        tmpW.configure(text=sizeString, font=OBJ_DATA_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=W, width=25)
+        tmpW.grid(row=tmpRow, column=1,  sticky=W + E)
+
+        tmpW = Label(parent)
+        tmpW.configure(text='Mag:', font=OBJ_LABEL_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=E)
+        tmpW.grid(row=tmpRow, column=2, sticky=W + E)
+        tmpW = Label(parent)
+        tmpW.configure(text=self._oInfo('MAG'), font=OBJ_DATA_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=W)
+        tmpW.grid(row=tmpRow, column=3,  sticky=W + E)
+        tmpRow += 1
+
+        # PA / SBright
+        tmpW = Label(parent)
+        tmpW.configure(text='Angle:', font=OBJ_LABEL_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=E)
+        tmpW.grid(row=tmpRow, column=0, sticky=W + E)
+        tmpW = Label(parent)
+        tmpW.configure(text=self._oInfo('PA'), font=OBJ_DATA_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=W, width=25)
+        tmpW.grid(row=tmpRow, column=1, sticky=W + E)
+
+        tmpW = Label(parent)
+        tmpW.configure(text='Surf:', font=OBJ_LABEL_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=E)
+        tmpW.grid(row=tmpRow, column=2, sticky=W + E)
+        tmpW = Label(parent)
+        tmpW.configure(text=self._oInfo('SUBR'), font=OBJ_DATA_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=W)
+        tmpW.grid(row=tmpRow, column=3, sticky=W + E)
+        tmpRow += 1
+
+
+        # CLassification / catalogs
+        tmpW = Label(parent)
+        tmpW.configure(text='Class:', font=OBJ_LABEL_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=E)
+        tmpW.grid(row=tmpRow, column=0, sticky=W + E)
+        tmpW = Label(parent)
+        tmpW.configure(text=self._oInfo('CLASS'), font=OBJ_DATA_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=W)
+        tmpW.grid(row=tmpRow, column=1, sticky=W + E)
+
+        tmpW = Label(parent)
+        tmpW.configure(text='Cats:', font=OBJ_LABEL_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=E)
+        tmpW.grid(row=tmpRow, column=2, sticky=W + E)
+        tmpW = Label(parent)
+        tmpW.configure(text=self._formatCats(self._oInfo('BCHM')), font=OBJ_MONO_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=S)
+        tmpW.grid(row=tmpRow, column=3, sticky=W + E)
+        tmpRow += 1
+
+        #Line Break
+        tmpW = Label(parent)
+        tmpW.configure(text='', font=OBJ_DATA_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=W)
+        tmpW.grid(row=tmpRow, column=0, columnspan=4, sticky=W + E)
+        tmpRow += 1
+
+        #NGC Codes
+        tmpW = Label(parent)
+        tmpW.configure(text='NGC:', font=OBJ_LABEL_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=W)
+        tmpW.grid(row=tmpRow, column=0, sticky=W + E)
+        tmpRow += 1
+        tmpW = Label(parent)
+        tmpW.configure(text=self._oInfo('NGC_DESCR'), font=OBJ_DATA_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=W)
+        tmpW.grid(row=tmpRow, column=0, columnspan=4, sticky=W + E)
+        tmpRow += 1
+
+        #Line Break
+        tmpW = Label(parent)
+        tmpW.configure(text='', font=OBJ_DATA_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=W)
+        tmpW.grid(row=tmpRow, column=0, columnspan=4, sticky=W + E)
+        tmpRow += 1
 
         # notes
+        tmpW = Label(parent)
+        tmpW.configure(text='Notes:', font=OBJ_LABEL_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=W)
+        tmpW.grid(row=tmpRow, column=0, sticky=W + E)
+        tmpRow += 1
+
+        tmpW = Label(parent)
+        tmpW.configure(text=textwrap.fill(self._oInfo('NOTES'), 40), font=OBJ_DATA_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=W)
+        tmpW.grid(row=tmpRow, column=0, columnspan=4, sticky=W + E)
+
+
 
     def draw(self, newParent=None):
         #Set buttons
@@ -232,6 +379,11 @@ class ALObjectInfo(object):
             else:
                 self._statusMethod('Could not find object')
                 self._searchObject=''
+        elif keyEvent.keycode == KEY_B06 and self._disiplayMode <> 'search':
+            #Go to on chart
+            objID=self._oInfo('PREFIX') + self._oInfo('OBJECT')
+            self._skyChart.findObject(objID.upper())
+            self._skyChart.setFOV(40)
         else:
             #Numeric?
             if keyEvent.char.isdigit:
