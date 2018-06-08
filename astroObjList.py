@@ -8,9 +8,10 @@ import alSkyChart
 import textwrap
 
 class ALObjectInfo(object):
-    def __init__(self, parent, filterObject, buttonMethod, statusMethod):
+    def __init__(self, parent, filterObject, sortClause, buttonMethod, statusMethod):
         self._parent=parent
         self._filter=filterObject
+        self._sortClause=sortClause
         self._objectList=[]
         self._buttonMethod=buttonMethod
         self._statusMethod=statusMethod
@@ -43,8 +44,8 @@ class ALObjectInfo(object):
         return curObj[alUtils.OBJ_FIELD_NAME.index(name)]
 
     def _showSearch(self, parent):
-        self._buttonMethod(5, 'ESC')
-        self._buttonMethod(6, 'SEARCH')
+        self._buttonMethod(6, 'ESC')
+        self._buttonMethod(7, 'GO!')
 
         tmpW = Label(parent)
         tmpW.configure(text=self._prefixes[self._searchPrefixIndex], font=OBJ_NAME_FONT, foreground=DATA_FG,
@@ -58,7 +59,9 @@ class ALObjectInfo(object):
 
 
     def _showImage(self, parent):
-        self._buttonMethod(5,'INFO')
+        self._buttonMethod(6,'INFO')
+        self._buttonMethod(7,'LOG')
+
 
         # Add image
         imageName=self._oInfo('PREFIX') + self._oInfo('OBJECT')
@@ -104,8 +107,35 @@ class ALObjectInfo(object):
 
         return catString
 
+    def _decodeNGC(self, ngcString):
+        """
+        Decodes NGC Description code to more legible equiv
+        :param ncgString:
+        :return: String with readable descriptions, already line broken
+        """
+
+        descriptions=[]
+        pPrefix=False
+        for code in ngcString.split(';'):
+            prefix=''
+            if code=='p':
+                pPrefix=True
+            else:
+                if pPrefix:
+                    pPrefix=False
+                    if code in ['F','B','L','S']:
+                        prefix='pretty '
+                    else:
+                        prefix='preceding '
+
+                descriptions.append(prefix + NGC_CODES.get(code,code))
+
+        return textwrap.fill(', '.join(descriptions), 40)
+
+
     def _showDetails(self, parent):
-        self._buttonMethod(5,'IMAGE')
+        self._buttonMethod(6,'IMAGE')
+        self._buttonMethod(7,'LOG')
 
         tmpRow=0
 
@@ -237,7 +267,7 @@ class ALObjectInfo(object):
         tmpW.grid(row=tmpRow, column=0, sticky=W + E)
         tmpRow += 1
         tmpW = Label(parent)
-        tmpW.configure(text=self._oInfo('NGC_DESCR'), font=OBJ_DATA_FONT, foreground=DATA_FG,
+        tmpW.configure(text=self._decodeNGC(self._oInfo('NGC_DESCR')), font=OBJ_DATA_FONT, foreground=DATA_FG,
                        background=DATA_BG, anchor=W)
         tmpW.grid(row=tmpRow, column=0, columnspan=4, sticky=W + E)
         tmpRow += 1
@@ -265,7 +295,11 @@ class ALObjectInfo(object):
 
     def draw(self, newParent=None):
         #Set buttons
-        self._buttonMethod(6,'CHART')
+        self._buttonMethod(3,'CHART')
+        self._buttonMethod(4, 'UP')
+        self._buttonMethod(5, 'DOWN')
+        self._buttonMethod(8, 'BACK')
+        self._buttonMethod(7, 'LOG')
 
         if newParent:
             self._parent = newParent
@@ -280,14 +314,14 @@ class ALObjectInfo(object):
         tmpS=self._oInfo('PREFIX') + ' ' + self._oInfo('OBJECT')
         tmpW.configure(text=tmpS.strip(), font=OBJ_NAME_FONT,
                        foreground=DATA_FG_BRIGHT, background=DATA_BG, anchor=W)
-        tmpW.grid(row=0,column=0, columnspan=4, sticky=W + E)
+        tmpW.grid(row=0,column=0, sticky=W + E)
 
 
         #Alternate NAme
         tmpW = Label(self._layout)
-        tmpW.configure(text=self._oInfo('OTHER'), font=OBJ_HEADING_FONT, foreground=DATA_FG,
-                       background=DATA_BG, anchor=W, width=40)
-        tmpW.grid(row=1, column=0, columnspan=4)
+        tmpW.configure(text=self._oInfo('OTHER'), font=OBJ_NAME_FONT, foreground=DATA_FG,
+                       background=DATA_BG, anchor=E)
+        tmpW.grid(row=0, column=1, sticky=W + E)
 
         # Spacer / Grid Settings
         """
@@ -311,10 +345,10 @@ class ALObjectInfo(object):
 
         #Detail container
         self._detailsLayout=Frame(self._layout)
-        self._detailsLayout.configure(background=DATA_BG, width=DATA_WIDTH, height=DATA_HEIGHT - 90)
+        self._detailsLayout.configure(background=DATA_BG, width=DATA_WIDTH, height=DATA_HEIGHT - 45)
 
         self._detailsLayout.grid_propagate(0)
-        self._detailsLayout.grid(sticky=N+S+E+W)
+        self._detailsLayout.grid(row=1, column=0, columnspan=2, sticky=N+S+E+W)
 
         if self._disiplayMode=='info':
             self._showDetails(self._detailsLayout)
@@ -341,13 +375,36 @@ class ALObjectInfo(object):
 
     def _getList(self):
         #need to do filtering here, but for now, get the WHOLE list
-        self._objectList=alUtils.executeQuery("SELECT * FROM OBJECTS ORDER BY MAG")
+        whereClause=''
+        clauseList=[]
+        if self._filter._catalog:
+            #SPECIAL CASES
+            if self._filter._catalog in ['M','C','B','H']:
+                clauseList.append("BCHM LIKE '%%%s%%'" % self._filter._catalog)
+            else:
+                clauseList.append("PREFIX='%s'" % self._filter._catalog)
+
+        if self._filter._magnitude:
+            clauseList.append("MAG > %f" % self._filter._magnitude)
+
+        if self._filter._constellation:
+            clauseList.append("CONST='%s'" % self._filter._constellation)
+
+        if self._filter._type:
+            clauseList.append("TYPE='%s'" % self._filter._type)
+
+        if len(clauseList) > 0:
+            whereClause='WHERE ' + ' AND '.join(clauseList)
+
+        self._queryString="SELECT * FROM OBJECTS %s ORDER BY %s" % (whereClause, self._sortClause)
+        print "QS: %s" % self._queryString
+        self._objectList=alUtils.executeQuery(self._queryString)
         self._listIndex=0
 
     def keyHandle(self,keyEvent):
         print "DATA KEY: %s - %s" % (keyEvent.keycode, keyEvent.char)
 
-        if keyEvent.keycode==KEY_B03:
+        if keyEvent.keycode==KEY_B04:
             if self._disiplayMode=='search':
                 self._searchPrefixIndex-=1
                 if self._searchPrefixIndex < 0:
@@ -356,7 +413,7 @@ class ALObjectInfo(object):
                 self._listIndex-=1
                 if self._listIndex < 0:
                     self._listIndex=0
-        elif keyEvent.keycode==KEY_B04:
+        elif keyEvent.keycode==KEY_B05:
             if self._disiplayMode=='search':
                 self._searchPrefixIndex+=1
                 if self._searchPrefixIndex > len(self._prefixes)-1:
@@ -366,20 +423,20 @@ class ALObjectInfo(object):
                 if self._listIndex > len(self._objectList) - 1:
                     self._listIndex=len(self._objectList) - 1
 
-        elif keyEvent.keycode==KEY_B05:
+        elif keyEvent.keycode==KEY_B06:
             self._searchObject = ''
             if self._disiplayMode=='info':
                 self._disiplayMode='image'
             else:
                 self._disiplayMode='info'
-        elif keyEvent.keycode == KEY_B06 and self._disiplayMode=='search':
+        elif keyEvent.keycode == KEY_B07 and self._disiplayMode=='search':
             if self.findItem(self._prefixes[self._searchPrefixIndex], self._searchObject):
                 self._disiplayMode='info'
                 self._searchObject='' #reset for next search
             else:
                 self._statusMethod('Could not find object')
                 self._searchObject=''
-        elif keyEvent.keycode == KEY_B06 and self._disiplayMode <> 'search':
+        elif keyEvent.keycode == KEY_B03 and self._disiplayMode <> 'search':
             #Go to on chart
             objID=self._oInfo('PREFIX') + self._oInfo('OBJECT')
             self._skyChart.findObject(objID.upper())

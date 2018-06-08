@@ -30,4 +30,16 @@ OBJ_TYPES={"ASTER":"Asterism", "BRTNB":"Bright Nebula", "CL+NB":"Cluster with Ne
            "SMCGC":"Globular Cluster in the SMC","SMCOC":"Open cluster in the SMC","SNREM":"Supernova Remnant",
            "QUASR":"Quasar"}
 
+NGC_CODES={'!!': 'very remarkable object', 'sp': 'south preceding', 'P w': 'paired with', 'inv': 'involved',
+           'am': 'among', 'susp': 'suspected', 'st': 'star or stellar', 'Ri': 'rich', 'er': 'easily resolved',
+           '!': 'remarkable object', 'diam': 'diameter', 'rr': 'partially resolved', 'irr': 'irregular',
+           'neb': 'nebula, nebulosity', 's': 'south', 'nf': 'north following', 'rrr': 'well resolved',
+           'var': 'variable', 'iF': 'irregular figure', 'C': 'compressed', 'B': 'bright', 'E': 'elongated',
+           'D': 'double', 'F': 'faint', '11m': '11th magnitude', 'M': 'middle', 'L': 'large', 'N': 'nucleus',
+           'P': 'poor', 'S': 'small', 'R': 'round', 'mag': 'magnitude', 'np': 'north preceding', 'c': 'considerably',
+           'b': 'brighter', 'e': 'extremely', 'g': 'gradually', 'Cl': 'cluster', 'dif': 'diffuse', 'f': 'following',
+           'm': 'much', 'l': 'little', 'n': 'north', 'p': 'preceding', 'att': 'attached', 'r': 'not well resolved',
+           'bet': 'between', 'v': 'very', 'sc': 'scattered', 'sf': 'south following', 'def': 'defined',
+           'deg': 'degrees'}
+
 MAIN_PREFIXES=['IC', 'M', 'Mel', 'NGC']
