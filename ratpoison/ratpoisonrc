@@ -1,0 +1,33 @@
+chdir
+
+# who needs a startup message?
+exec xset dpms force off
+startup_message off
+
+# Graphics tweaks
+# Not quite sure what these do, copied from Reactor Core.
+# Supposedly make borders take up less space.
+defborder 0
+defpadding 0 0 0 0
+defbarpadding 0 0 
+
+#Other stuff here
+
+#Set Colours
+defbgcolor #220000
+deffgcolor #DD0000
+
+alias togglewins exec .ratpoison/toggle_windows
+
+#Map / to switch 
+exec xmodmap -e "keycode 77 = F20"
+definekey top F12 togglewins
+
+chdir ~/python/astroList
+exec x-terminal-emulator --command python ~/python/astroList/astroList.py
+exec skychart
+exec unclutter -idle 0.2 -root &
+
+banish
+exec xset dpms force on
+

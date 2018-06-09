@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+frame_num=$(ratpoison -c curframe)
+if [ $frame_num -eq 1 ]; then
+	xset dpms force off
+	ratpoison -c "remove"
+	sleep 0.25
+	xset dpms force on
+else
+	#Check for menu bar
+	if [ -z $(ratpoison -c "getenv MENU_HIDDEN") ]; then
+		ratpoison -c "setenv MENU_HIDDEN YES"
+		xdotool key ctrl+shift+m
+	fi
+	xset dpms force off
+	ratpoison -c "hsplit"
+	ratpoison -c "fselect 1"
+	sleep 1.5
+	xset dpms force on
+fi
+
