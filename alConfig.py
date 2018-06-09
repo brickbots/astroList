@@ -44,18 +44,18 @@ if platform.system()=='Linux':
     PICTURE_PATH = '/home/pi/SAC_png'
     IMAGE_SIZE_FONT=['/usr/share/fonts/truetype/freefont/FreeSansBold.ttf',20]
 
-    KEY_B01 = 2228329  # W
-    KEY_B02 = 2031727  # E
-    KEY_B03 = 2293872  # R
-    KEY_B04 = 2687035  # A
-    KEY_B05 = 2883631  # S
-    KEY_B06 = 8124162  # D
-    KEY_B07 = 8124162  # F
-    KEY_B08 = 8124162  # Z
-    KEY_B09 = 8124162  # X
+    KEY_B01 = 25  # W
+    KEY_B02 = 26  # E
+    KEY_B03 = 27  # R
+    KEY_B04 = 38  # A
+    KEY_B05 = 39  # S
+    KEY_B06 = 40  # D
+    KEY_B07 = 41  # F
+    KEY_B08 = 52  # Z
+    KEY_B09 = 53  # X
 
     #All numbers from 0-9 + .
-    KEY_NUM_LIST=[90,87,88,89,83,84,85,79,80,81,91]
+    KEY_NUM_LIST=[19,87,88,89,83,84,85,79,80,81,60]
 
 
 else:
