@@ -166,7 +166,7 @@ class ALObjectInfo(object):
         tmpW.grid(row=tmpRow, column=0, sticky=W + E)
         tmpW = Label(parent)
         tmpW.configure(text=CONSTELLATIONS[self._oInfo('CON')], font=OBJ_DATA_FONT, foreground=DATA_FG,
-                       background=DATA_BG, anchor=W, width=25)
+                       background=DATA_BG, anchor=W, width=22)
         tmpW.grid(row=tmpRow, column=1,  sticky=W + E)
 
         tmpW = Label(parent)
