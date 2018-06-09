@@ -137,25 +137,25 @@ class AstroList(object):
         #SIDE BUTTONS
         self.button4 = Label(self._mainLayout)
         self.button4.configure(text="", font=BUTTON_FONT, background=BUTTON_BG, foreground=BUTTON_FG,
-                               height=SIDE_BUTTON_HEIGHT, width=6, highlightthickness=BUTTON_BORDER,
+                               height=SIDE_BUTTON_HEIGHT, width=4, highlightthickness=BUTTON_BORDER,
                                highlightbackground=BUTTON_BORDER_COLOR, highlightcolor=BUTTON_BORDER_COLOR)
         self.button4.grid(column=4, row=1, sticky=N+S+E+W)
 
         self.button5 = Label(self._mainLayout)
         self.button5.configure(text="", font=BUTTON_FONT, background=BUTTON_BG, foreground=BUTTON_FG,
-                               height=SIDE_BUTTON_HEIGHT, width=6, highlightthickness=BUTTON_BORDER,
+                               height=SIDE_BUTTON_HEIGHT, width=4, highlightthickness=BUTTON_BORDER,
                                highlightbackground=BUTTON_BORDER_COLOR, highlightcolor=BUTTON_BORDER_COLOR)
         self.button5.grid(column=4, row=2, sticky=N+S+E+W)
 
         self.button6 = Label(self._mainLayout)
         self.button6.configure(text="", font=BUTTON_FONT, background=BUTTON_BG, foreground=BUTTON_FG,
-                               height=SIDE_BUTTON_HEIGHT, width=6, highlightthickness=BUTTON_BORDER,
+                               height=SIDE_BUTTON_HEIGHT, width=4, highlightthickness=BUTTON_BORDER,
                                highlightbackground=BUTTON_BORDER_COLOR, highlightcolor=BUTTON_BORDER_COLOR)
         self.button6.grid(column=4, row=3, sticky=N + S + E + W)
 
         self.button7 = Label(self._mainLayout)
         self.button7.configure(text="", font=BUTTON_FONT, background=BUTTON_BG, foreground=BUTTON_FG,
-                               height=SIDE_BUTTON_HEIGHT, width=6, highlightthickness=BUTTON_BORDER,
+                               height=SIDE_BUTTON_HEIGHT, width=4, highlightthickness=BUTTON_BORDER,
                                highlightbackground=BUTTON_BORDER_COLOR, highlightcolor=BUTTON_BORDER_COLOR)
         self.button7.grid(column=4, row=4, rowspan=2, sticky=N + S + E + W)
 
