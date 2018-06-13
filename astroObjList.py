@@ -8,10 +8,9 @@ import alSkyChart
 import textwrap
 
 class ALObjectInfo(object):
-    def __init__(self, parent, filterObject, sortClause, buttonMethod, statusMethod):
-        self._parent=parent
+    def __init__(self, filterObject, buttonMethod, statusMethod):
+        self._parent=None
         self._filter=filterObject
-        self._sortClause=sortClause
         self._objectList=[]
         self._buttonMethod=buttonMethod
         self._statusMethod=statusMethod
@@ -24,7 +23,7 @@ class ALObjectInfo(object):
         self._searchObject=''
         self._disiplayMode='info'
         self._skyChart=alSkyChart.SkyChartControl()
-        self.draw()
+
 
 
     def _createLayout(self):
@@ -298,7 +297,7 @@ class ALObjectInfo(object):
         self._buttonMethod(3,'CHART')
         self._buttonMethod(4, 'UP')
         self._buttonMethod(5, 'DOWN')
-        self._buttonMethod(8, 'BACK')
+        self._buttonMethod(8, '')
         self._buttonMethod(7, 'LOG')
 
         if newParent:
@@ -396,7 +395,7 @@ class ALObjectInfo(object):
         if len(clauseList) > 0:
             whereClause='WHERE ' + ' AND '.join(clauseList)
 
-        self._queryString="SELECT * FROM OBJECTS %s ORDER BY %s" % (whereClause, self._sortClause)
+        self._queryString="SELECT * FROM OBJECTS %s ORDER BY %s" % (whereClause, self._filter._sortClause)
         print "QS: %s" % self._queryString
         self._objectList=alUtils.executeQuery(self._queryString)
         self._listIndex=0

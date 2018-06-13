@@ -24,6 +24,8 @@ DATA_BG='#000000'
 MENU_BG='#000000'
 MENU_FG='#990000'
 MENU_FONT=('Arial Unicode MS', -25, 'bold')
+MENU_KEY_BG=BUTTON_BG
+MENU_KEY_FG=BUTTON_FG
 MENU_WIDTH=20
 MENU_HEIGHT=1
 MENU_BORDER=2
@@ -45,18 +47,18 @@ if platform.system()=='Linux':
     PICTURE_PATH = '/home/pi/SAC_png'
     IMAGE_SIZE_FONT=['/usr/share/fonts/truetype/freefont/FreeSansBold.ttf',20]
 
-    KEY_B01 = 25  # W
-    KEY_B02 = 26  # E
-    KEY_B03 = 27  # R
-    KEY_B04 = 38  # A
-    KEY_B05 = 39  # S
+    KEY_B01 = 57  # N
+    KEY_B02 = 39  # S
+    KEY_B03 = 52  # Z
+    KEY_B04 = 82  # -
+    KEY_B05 = 86  # +
     KEY_B06 = 40  # D
     KEY_B07 = 41  # F
-    KEY_B08 = 52  # Z
-    KEY_B09 = 53  # X
+    KEY_B08 = 25  # W
+    KEY_B09 = 26  # E
 
     #All numbers from 0-9 + .
-    KEY_NUM_LIST=[19,87,88,89,83,84,85,79,80,81,60]
+    KEY_NUM_LIST=[90,87,88,89,83,84,85,79,80,81,60]
 
 
 else:

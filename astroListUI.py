@@ -3,13 +3,13 @@ from alConfig import *
 import astroObjList
 
 class ALMenu(object):
-    def __init__(self,parent, menuItemList=None):
-        self._parent = parent
+    def __init__(self, filterObj=None, menuTitle='', menuItemList=None):
+        self._parent = None
+        self._filterObj=filterObj
+        self._menuTitle=menuTitle
         self._menuItemList=menuItemList
         if not self._menuItemList:
             self._menuItemList=['One','Two','Three']
-
-        self._drawMenu()
 
     def draw(self, newParent=None):
         if newParent:
@@ -17,15 +17,40 @@ class ALMenu(object):
         self._drawMenu()
 
     def _drawMenu(self):
+        # TITLE
+        tmpW=Label(self._parent)
+        tmpW.configure(text=self._menuTitle, font=MENU_FONT, background=MENU_BG,
+                                      foreground=MENU_FG, height=MENU_HEIGHT,
+                                      highlightthickness=MENU_BORDER, highlightbackground=MENU_BORDER_COLOR,
+                                      highlightcolor=MENU_BORDER_COLOR, anchor=W)
+        tmpW.grid(column=0, row=0, columnspan=3, sticky=N + S + E + W)
+
         self._menuItems=[]
         i=1
         for menuItem in self._menuItemList:
+            #Spacer
             self._menuItems.append(Label(self._parent))
-            self._menuItems[-1].configure(text="        %i - %s" %(i,menuItem) , font = MENU_FONT, background = MENU_BG,
+            self._menuItems[-1].configure(text="", font=MENU_FONT, background=MENU_BG,
+                                          foreground=MENU_FG, height=MENU_HEIGHT, width=2,
+                                          highlightthickness=MENU_BORDER, highlightbackground=MENU_BORDER_COLOR,
+                                          highlightcolor=MENU_BORDER_COLOR, anchor=W)
+            self._menuItems[-1].grid(column=0, row=i, sticky=N + S + E + W)
+
+            #Number
+            self._menuItems.append(Label(self._parent))
+            self._menuItems[-1].configure(text="%i" % i, font=MENU_FONT, background=MENU_KEY_BG,
+                                          foreground=MENU_KEY_FG, height=MENU_HEIGHT, width=1,
+                                          highlightthickness=MENU_BORDER, highlightbackground=MENU_BORDER_COLOR,
+                                          highlightcolor=MENU_BORDER_COLOR, anchor=W)
+            self._menuItems[-1].grid(column=1, row=i, sticky=N + S + E + W)
+
+            #Item
+            self._menuItems.append(Label(self._parent))
+            self._menuItems[-1].configure(text=menuItem , font = MENU_FONT, background = MENU_BG,
                                           foreground=MENU_FG, height=MENU_HEIGHT, width = MENU_WIDTH,
                                           highlightthickness = MENU_BORDER, highlightbackground = MENU_BORDER_COLOR,
                                           highlightcolor = MENU_BORDER_COLOR, anchor=W)
-            self._menuItems[-1].grid(column=0, row=i, sticky=N + S + E + W)
+            self._menuItems[-1].grid(column=2, row=i, sticky=N + S + E + W)
             i+=1
 
     def dataType(self):
@@ -33,27 +58,73 @@ class ALMenu(object):
 
         :return: String indicating what's in the data pane
         """
-        return "TEST"
+        return "MENU-%s" % self._menuTitle
 
     def keyHandle(self,keyEvent):
         print "DATA KEY: %s - %s" % (keyEvent.keycode, keyEvent.char)
 
 
-class MainMenu(ALMenu):
-    def __init__(self, parent):
-        super(MainMenu, self).__init__(parent, menuItemList=['ALL', 'NGC', 'Messier', 'Herschel', 'Caldwell', 'SAC',
+class CatalogMenu(ALMenu):
+    def __init__(self, filterObj):
+        super(CatalogMenu, self).__init__(filterObj=filterObj, menuTitle='Catalog', menuItemList=['ALL', 'NGC', 'Messier', 'Herschel', 'Caldwell', 'SAC',
                                                              'Obs List'])
+    def keyHandle(self,keyEvent):
+        print "DATA KEY: %s - %s" % (keyEvent.keycode, keyEvent.char)
+        num = int(keyEvent.char)
 
-    def dataType(self):
-        return "MAIN"
+        if num == 1:
+            self._clearData()
+            self._dataObject = astroObjList.ALObjectInfo(self._dataFrame, self._filterObj, self._sortClause,
+                                                         self.setButton, self.setStatus)
+        if num == 2:
+            # NGC
+            self._clearData()
+            self._filter.reset()
+            self._filter._catalog = 'NGC'
+            self._dataObject = astroObjList.ALObjectInfo(self._dataFrame, self._filter, self._sortClause,
+                                                         self.setButton, self.setStatus)
 
+        if num == 3:
+            # Messier
+            self._clearData()
+            self._filter.reset()
+            self._filter._catalog = 'M'
+            self._sortClause = 'OTHER'
+            self._dataObject = astroObjList.ALObjectInfo(self._dataFrame, self._filter, self._sortClause,
+                                                         self.setButton, self.setStatus)
+        if num == 4:
+            # Herschel
+            self._clearData()
+            self._filter.reset()
+            self._filter._catalog = 'H'
+            self._sortClause = 'PREFIX, OBJECT ASC'
+            self._dataObject = astroObjList.ALObjectInfo(self._dataFrame, self._filter, self._sortClause,
+                                                         self.setButton, self.setStatus)
+        if num == 5:
+            ##Caldwel
+            self._clearData()
+            self._filter.reset()
+            self._filter._catalog = 'C'
+            self._sortClause = 'PREFIX, OBJECT ASC'
+            self._dataObject = astroObjList.ALObjectInfo(self._dataFrame, self._filter, self._sortClause,
+                                                         self.setButton, self.setStatus)
 
-class Filter(object):
+        if num == 6:
+            # SAC
+            self._clearData()
+            self._filter.reset()
+            self._filter._catalog = 'B'
+            self._sortClause = 'PREFIX, OBJECT ASC'
+            self._dataObject = astroObjList.ALObjectInfo(self._dataFrame, self._filter, self._sortClause,
+                                                         self.setButton, self.setStatus)
+
+class FilterObj(object):
     def __init__(self):
         self._catalog=None
         self._type=None
         self._magnitude=None
         self._constellation=None
+        self._sortClause = 'PREFIX, OBJECT ASC'
 
     def reset(self):
         self._catalog=None
@@ -62,53 +133,28 @@ class Filter(object):
         self._constellation=None
 
 
-class FilterPane(object):
-    def __init__(self, parent, filterObject):
-        self._parent=parent
-        self._filterObject=filterObject
+class FilterMenu(ALMenu):
+    def __init__(self, filterObj):
+        super(FilterMenu, self).__init__(filterObj=filterObj,menuTitle='Filter',
+                                          menuItemList=['Catalog', 'Type', 'Const', 'Mag'])
 
-        self.draw()
 
-    def draw(self, newParent=None):
-        if newParent:
-            self._parent=newParent
-        testLabel=Label(self._parent, text="Filter this yo!")
-        testLabel.grid()
+class SortMenu(ALMenu):
+    def __init__(self, filterObj):
+        super(SortMenu, self).__init__(filterObj=filterObj, menuTitle='Sort',
+                                          menuItemList=['ObjID', 'Other', 'Type', 'Const', 'Mag', 'RA'])
 
-    def keyHandle(self,keyEvent):
-        print "DATA KEY: %s - %s" % (keyEvent.keycode, keyEvent.char)
-
-    def dataType(self):
-        return "FILTER"
-
-class SortPane(object):
-    def __init__(self, parent, filterObject):
-        self._parent=parent
-        self._filterObject=filterObject
-
-        self.draw()
-
-    def draw(self, newParent=None):
-        if newParent:
-            self._parent=newParent
-        testLabel=Label(self._parent, text="Sort this yo!")
-        testLabel.grid()
-
-    def keyHandle(self,keyEvent):
-        print "DATA KEY: %s - %s" % (keyEvent.keycode, keyEvent.char)
-
-    def dataType(self):
-        return "SORT"
 
 class AstroList(object):
     def __init__(self, parent):
-        self._filter=Filter()
-        self._sortClause='PREFIX, OBJECT ASC'
+        self._filterObj=FilterObj()
         self._parent = parent
         self._mainLayout = Frame(self._parent, height=600, width=510, background="#000000", takefocus=1)
         self._mainLayout.bind("<Key>", self._keyHandle)
         self._mainLayout.grid_propagate(0)
         self._mainLayout.grid()
+        self._dataFrame=None
+        self._dataStack=[]
 
         self.button0 = Label(self._mainLayout )
         self.button0.configure(text="CLOSE", font=BUTTON_FONT, background=BUTTON_BG, foreground=BUTTON_FG,
@@ -179,9 +225,10 @@ class AstroList(object):
                                    highlightbackground=DATA_BG, highlightcolor=BUTTON_BORDER_COLOR)
         self.bottomSpace.grid(column=1, row=5, columnspan=2)
 
-        self._dataFrame=None
-        self._clearData() #also ends up creating frame
-        self._dataObject=MainMenu(self._dataFrame)
+        self._clearData()
+        self._filterObj.reset()
+        self._filterObj._catalog = 'NGC'
+        self.pushStack(astroObjList.ALObjectInfo(self._filterObj, self.setButton, self.setStatus))
         self._mainLayout.focus_set()
 
     def setStatus(self, statusText):
@@ -193,7 +240,6 @@ class AstroList(object):
         eval('self.button%i.configure(text="%s")' % (buttonNo, buttonText))
 
     def _clearData(self):
-        self._dataObject=None
 
         if self._dataFrame:
             self._dataFrame.destroy()
@@ -202,86 +248,56 @@ class AstroList(object):
         self._dataFrame.grid_propagate(0)
         self._dataFrame.grid(column=0, row=1, columnspan=4, rowspan=4)
 
+    def popStack(self):
+        if len(self._dataStack) > 1:
+            self._clearData()
+            self._dataStack.pop()
+            self._dataStack[-1].draw(self._dataFrame)
+            if len(self._dataStack)==1:
+                self.setButton(8,'')
+
+    def pushStack(self, dataObj):
+        self._clearData()
+        self._dataStack.append(dataObj)
+        self._dataStack[-1].draw(self._dataFrame)
+        if len(self._dataStack) > 1:
+            self.setButton(8,'BACK')
 
     def _keyHandle(self, keyEvent):
         print "KEY: %s - %s" % (keyEvent.keycode,keyEvent.char)
 
+        doType=self._dataStack[-1].dataType().split('-')[0]
+
         if keyEvent.keycode==KEY_B01:
             #Filter
-            if self._dataObject.dataType()=='FILTER':
+            if doType=='FILTER':
                 #Restore previous data objet
-                self._clearData()
-                self._dataObject=self._dataObjectBackup
-                self._dataObject.draw(self._dataFrame)
-            else:
-                self._dataObjectBackup=self._dataObject
-                self._clearData()
-                self._dataObject=FilterPane(self._dataFrame,self._filter)
+                self.popStack()
 
-        if keyEvent.keycode==KEY_B02:
-            #SORT
-            if self._dataObject.dataType()=='SORT':
-                #Restore previous data objet
-                self._clearData()
-                self._dataObject=self._dataObjectBackup
-                self._dataObject.draw(self._dataFrame)
             else:
-                self._dataObjectBackup=self._dataObject
-                self._clearData()
-                self._dataObject=SortPane(self._dataFrame,self._filter)
+
+                self.pushStack(FilterMenu(self._filterObj))
+
+        elif keyEvent.keycode==KEY_B02:
+            #SORT
+            if doType=='SORT':
+                #Restore previous data objet
+                self.popStack()
+            else:
+                self.pushStack(SortMenu(self._filterObj))
+
+        elif keyEvent.keycode==KEY_B08:
+            #Back
+            self.popStack()
+
 
         elif keyEvent.keycode in KEY_NUM_LIST:
             #Numeric keys, decode for convinience
-            num=KEY_NUM_LIST.index(keyEvent.keycode)
-            if self._dataObject.dataType()=='MAIN':
-                if num==1:
-                    self._clearData()
-                    self._dataObject = astroObjList.ALObjectInfo(self._dataFrame, self._filter, self._sortClause,
-                                                                 self.setButton, self.setStatus)
-                if num==2:
-                    #NGC
-                    self._clearData()
-                    self._filter.reset()
-                    self._filter._catalog='NGC'
-                    self._dataObject = astroObjList.ALObjectInfo(self._dataFrame, self._filter, self._sortClause,
-                                                                 self.setButton, self.setStatus)
+            num = KEY_NUM_LIST.index(keyEvent.keycode)
+            keyEvent.char = str(num)
 
-                if num==3:
-                    #Messier
-                    self._clearData()
-                    self._filter.reset()
-                    self._filter._catalog='M'
-                    self._sortClause='OTHER'
-                    self._dataObject = astroObjList.ALObjectInfo(self._dataFrame, self._filter, self._sortClause,
-                                                                 self.setButton, self.setStatus)
-                if num==4:
-                    #Herschel
-                    self._clearData()
-                    self._filter.reset()
-                    self._filter._catalog='H'
-                    self._sortClause='PREFIX, OBJECT ASC'
-                    self._dataObject = astroObjList.ALObjectInfo(self._dataFrame, self._filter, self._sortClause,
-                                                                 self.setButton, self.setStatus)
-                if num==5:
-                    ##Caldwel
-                    self._clearData()
-                    self._filter.reset()
-                    self._filter._catalog='C'
-                    self._sortClause='PREFIX, OBJECT ASC'
-                    self._dataObject = astroObjList.ALObjectInfo(self._dataFrame, self._filter, self._sortClause,
-                                                                 self.setButton, self.setStatus)
-
-                if num==6:
-                    #SAC
-                    self._clearData()
-                    self._filter.reset()
-                    self._filter._catalog='B'
-                    self._sortClause='PREFIX, OBJECT ASC'
-                    self._dataObject = astroObjList.ALObjectInfo(self._dataFrame, self._filter, self._sortClause,
-                                                                 self.setButton, self.setStatus)
-            elif self._dataObject.dataType() == 'OBJECT':
-                self._dataObject.keyHandle(keyEvent)
+            self._dataStack[-1].keyHandle(keyEvent)
 
         else:
             #Pass through to data objects
-            self._dataObject.keyHandle(keyEvent)
+            self._dataStack[-1].keyHandle(keyEvent)
