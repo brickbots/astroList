@@ -22,8 +22,7 @@ class ALObjectInfo(object):
         self._searchPrefixIndex=3
         self._searchObject=''
         self._disiplayMode='info'
-        self._skyChart=alSkyChart.SkyChartControl()
-
+        self._skyChart=None
 
 
     def _createLayout(self):
@@ -438,6 +437,9 @@ class ALObjectInfo(object):
         elif keyEvent.keycode == KEY_B03 and self._disiplayMode <> 'search':
             #Go to on chart
             objID=self._oInfo('PREFIX') + self._oInfo('OBJECT')
+            if not self._skyChart:
+                self._skyChart=alSkyChart.SkyChartControl()
+
             self._skyChart.findObject(objID.upper())
             self._skyChart.setFOV(40)
         else:
