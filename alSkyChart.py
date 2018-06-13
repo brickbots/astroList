@@ -1,4 +1,4 @@
-SC_IP='192.168.1.108'
+SC_IP='127.0.0.1'
 SC_PORT=3292
 BUFFER_SIZE=1024
 
@@ -9,7 +9,7 @@ class SkyChartControl(object):
     def __init__(self):
         #open socket and prep for commands
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._socket.settimeout(1)
+        self._socket.settimeout(3)
         try:
             self._socket.connect((SC_IP, SC_PORT))
             data = self._socket.recv(BUFFER_SIZE)
