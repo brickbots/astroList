@@ -7,6 +7,22 @@ import os
 import alSkyChart
 import textwrap
 
+def getObsListItems():
+    objList=[]
+    baseList=alUtils.loadObsList(OBSLIST_PATH)
+    for item in baseList:
+        print item
+        cat=item.split(' ')[0]
+        objID=item.split(' ')[1]
+        queryString = "SELECT * FROM OBJECTS WHERE (PREFIX='%s' AND OBJECT='%s') OR OTHER='%s'" % (cat, objID, item)
+
+        tmpRet=alUtils.executeQuery(queryString)
+        if len(tmpRet) > 0:
+            objList.append(tmpRet[0])
+
+    return objList
+
+
 class ALObjectInfo(object):
     def __init__(self, filterObject, buttonMethod, statusMethod):
         self._parent=None
@@ -23,6 +39,7 @@ class ALObjectInfo(object):
         self._searchObject=''
         self._disiplayMode='info'
         self._skyChart=None
+        self._currentFilterHash=None
 
 
     def _createLayout(self):
@@ -304,6 +321,9 @@ class ALObjectInfo(object):
         else:
             self._layout.destroy()
 
+        #check if filter or sort have changed....
+        if str(self._filter) <> self._currentFilterHash:
+            self._getList()
 
         self._createLayout()
 
@@ -372,11 +392,16 @@ class ALObjectInfo(object):
         self._prefixes=alUtils.executeQuery('SELECT DISTINCT PREFIX FROM OBJECTS ORDER BY PREFIX')
 
     def _getList(self):
-        #need to do filtering here, but for now, get the WHOLE list
         whereClause=''
         clauseList=[]
         if self._filter._catalog:
             #SPECIAL CASES
+            if self._filter._catalog=='ObsList':
+                self._objectList=getObsListItems()
+                self._listIndex = 0
+                self._currentFilterHash = str(self._filter)
+                return
+
             if self._filter._catalog in ['M','C','B','H']:
                 clauseList.append("BCHM LIKE '%%%s%%'" % self._filter._catalog)
             else:
@@ -398,6 +423,7 @@ class ALObjectInfo(object):
         print "QS: %s" % self._queryString
         self._objectList=alUtils.executeQuery(self._queryString)
         self._listIndex=0
+        self._currentFilterHash=str(self._filter)
 
     def keyHandle(self,keyEvent):
         print "DATA KEY: %s - %s" % (keyEvent.keycode, keyEvent.char)

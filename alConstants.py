@@ -18,6 +18,16 @@ CONSTELLATIONS={'LIB': 'LIBRA', 'MIC': 'MICROSCOPIUM', 'BOO': 'BOOTES', 'DRA': '
                 'CYG': 'CYGNUS', 'AQL': 'AQUILA', 'SGE': 'SAGITTA', 'HOR': 'HOROLOGIUM', 'CNC': 'CANCER', 'ARA': 'ARA',
                 'ARI': 'ARIES'}
 
+FILTER_TYPES={'Asterisms':['ASTER'],
+              'Globulars':['GLOCL','GX+GC','SMCGC', 'LMCGC'],
+              'Galaxies':['GALXY'],
+              'Galaxy Clust':['GALCL'],
+              'Bright Nebula':['BRTNB','GX+DN', 'LMCDN','SMCDN'],
+              'Dark Nebula':['DRKNB'],
+              'Planetary Neb':['PLNNB'],
+              'Supernova Rem':['SNREM'],
+              'Clusters':['CL+NB', 'GX+DN','LMCCN','LMCOC', 'OPNCL', 'SMCOC']
+              }
 
 
 OBJ_TYPES={"ASTER":"Asterism", "BRTNB":"Bright Nebula", "CL+NB":"Cluster with Nebulosity", "DRKNB":"Dark Nebula",

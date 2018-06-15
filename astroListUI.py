@@ -1,13 +1,15 @@
 from Tkinter import *
 from alConfig import *
+from alConstants import *
 import astroObjList
 
 class ALMenu(object):
-    def __init__(self, filterObj=None, menuTitle='', menuItemList=None):
+    def __init__(self, uiObj=None, filterObj=None, menuTitle='', menuItemList=None):
         self._parent = None
         self._filterObj=filterObj
         self._menuTitle=menuTitle
         self._menuItemList=menuItemList
+        self._uiObj=uiObj
         if not self._menuItemList:
             self._menuItemList=['One','Two','Three']
 
@@ -37,8 +39,11 @@ class ALMenu(object):
             self._menuItems[-1].grid(column=0, row=i, sticky=N + S + E + W)
 
             #Number
+            iStr='%i' % i
+            if i==10:
+                iStr='0'
             self._menuItems.append(Label(self._parent))
-            self._menuItems[-1].configure(text="%i" % i, font=MENU_FONT, background=MENU_KEY_BG,
+            self._menuItems[-1].configure(text=iStr, font=MENU_FONT, background=MENU_KEY_BG,
                                           foreground=MENU_KEY_FG, height=MENU_HEIGHT, width=1,
                                           highlightthickness=MENU_BORDER, highlightbackground=MENU_BORDER_COLOR,
                                           highlightcolor=MENU_BORDER_COLOR, anchor=W)
@@ -64,59 +69,63 @@ class ALMenu(object):
         print "DATA KEY: %s - %s" % (keyEvent.keycode, keyEvent.char)
 
 
+class TypeMenu(ALMenu):
+    def __init__(self, uiObj, filterObj):
+        self._typeList=[]
+        for t in FILTER_TYPES:
+            self._typeList.append(t)
+        self._typeList.append('All')
+        self._typeList.sort()
+        super(TypeMenu, self).__init__(uiObj=uiObj, filterObj=filterObj, menuTitle='Catalog',
+                                          menuItemList=self._typeList)
+    def keyHandle(self,keyEvent):
+        print "DATA KEY: %s - %s" % (keyEvent.keycode, keyEvent.char)
+        num = int(keyEvent.char)
+
+        if num > 0:
+            self._filterObj._type=self._typeList[num-1]
+        else:
+            self._filterObj._type = self._typeList[9]
+        self._uiObj.popStack()
+
+
 class CatalogMenu(ALMenu):
-    def __init__(self, filterObj):
-        super(CatalogMenu, self).__init__(filterObj=filterObj, menuTitle='Catalog', menuItemList=['ALL', 'NGC', 'Messier', 'Herschel', 'Caldwell', 'SAC',
+    def __init__(self, uiObj, filterObj):
+        super(CatalogMenu, self).__init__(uiObj=uiObj, filterObj=filterObj, menuTitle='Catalog',
+                                          menuItemList=['ALL', 'NGC', 'Messier', 'Herschel', 'Caldwell', 'SAC',
                                                              'Obs List'])
     def keyHandle(self,keyEvent):
         print "DATA KEY: %s - %s" % (keyEvent.keycode, keyEvent.char)
         num = int(keyEvent.char)
 
         if num == 1:
-            self._clearData()
-            self._dataObject = astroObjList.ALObjectInfo(self._dataFrame, self._filterObj, self._sortClause,
-                                                         self.setButton, self.setStatus)
+            self._filterObj._catalog=None
+
         if num == 2:
             # NGC
-            self._clearData()
-            self._filter.reset()
-            self._filter._catalog = 'NGC'
-            self._dataObject = astroObjList.ALObjectInfo(self._dataFrame, self._filter, self._sortClause,
-                                                         self.setButton, self.setStatus)
+            self._filterObj._catalog = 'NGC'
 
         if num == 3:
             # Messier
-            self._clearData()
-            self._filter.reset()
-            self._filter._catalog = 'M'
+            self._filterObj._catalog = 'M'
             self._sortClause = 'OTHER'
-            self._dataObject = astroObjList.ALObjectInfo(self._dataFrame, self._filter, self._sortClause,
-                                                         self.setButton, self.setStatus)
+
         if num == 4:
             # Herschel
-            self._clearData()
-            self._filter.reset()
-            self._filter._catalog = 'H'
-            self._sortClause = 'PREFIX, OBJECT ASC'
-            self._dataObject = astroObjList.ALObjectInfo(self._dataFrame, self._filter, self._sortClause,
-                                                         self.setButton, self.setStatus)
+            self._filterObj._catalog = 'H'
+
         if num == 5:
             ##Caldwel
-            self._clearData()
-            self._filter.reset()
-            self._filter._catalog = 'C'
-            self._sortClause = 'PREFIX, OBJECT ASC'
-            self._dataObject = astroObjList.ALObjectInfo(self._dataFrame, self._filter, self._sortClause,
-                                                         self.setButton, self.setStatus)
+            self._filterObj._catalog = 'C'
 
         if num == 6:
             # SAC
-            self._clearData()
-            self._filter.reset()
-            self._filter._catalog = 'B'
-            self._sortClause = 'PREFIX, OBJECT ASC'
-            self._dataObject = astroObjList.ALObjectInfo(self._dataFrame, self._filter, self._sortClause,
-                                                         self.setButton, self.setStatus)
+            self._filterObj._catalog = 'B'
+
+        if num == 7:
+            # ObsList
+            self._filterObj._catalog = 'ObsList'
+        self._uiObj.popStack()
 
 class FilterObj(object):
     def __init__(self):
@@ -124,7 +133,7 @@ class FilterObj(object):
         self._type=None
         self._magnitude=None
         self._constellation=None
-        self._sortClause = 'PREFIX, OBJECT ASC'
+        self._sortClause = 'PREFIX, CAST(OBJECT AS INTEGER) ASC'
 
     def reset(self):
         self._catalog=None
@@ -132,17 +141,114 @@ class FilterObj(object):
         self._magnitude=None
         self._constellation=None
 
+    def __str__(self):
+        return "%s/%s/%s/%s/%s" % (self._catalog, self._type, str(self._magnitude), self._constellation,
+                                   self._sortClause)
+
 
 class FilterMenu(ALMenu):
-    def __init__(self, filterObj):
-        super(FilterMenu, self).__init__(filterObj=filterObj,menuTitle='Filter',
-                                          menuItemList=['Catalog', 'Type', 'Const', 'Mag'])
+    def __init__(self, uiObj, filterObj):
+        super(FilterMenu, self).__init__(uiObj=uiObj, filterObj=filterObj,menuTitle='Filter',
+                                          menuItemList=['Reset', 'Catalog', 'Type', 'Const', 'Mag'])
 
+    def _drawMenu(self):
+        # TITLE
+        tmpW=Label(self._parent)
+        tmpW.configure(text=self._menuTitle, font=MENU_FONT, background=MENU_BG,
+                                      foreground=MENU_FG, height=MENU_HEIGHT,
+                                      highlightthickness=MENU_BORDER, highlightbackground=MENU_BORDER_COLOR,
+                                      highlightcolor=MENU_BORDER_COLOR, anchor=W)
+        tmpW.grid(column=0, row=0, columnspan=3, sticky=N + S + E + W)
+
+        i=1
+        for menuItem in self._menuItemList:
+            #Spacer
+            tmpW=Label(self._parent)
+            tmpW.configure(text="", font=MENU_FONT, background=MENU_BG,
+                                          foreground=MENU_FG, height=MENU_HEIGHT, width=2,
+                                          highlightthickness=MENU_BORDER, highlightbackground=MENU_BORDER_COLOR,
+                                          highlightcolor=MENU_BORDER_COLOR, anchor=W)
+            tmpW.grid(column=0, row=i, sticky=N + S + E + W)
+
+            #Number
+            tmpW=Label(self._parent)
+            tmpW.configure(text="%i" % i, font=MENU_FONT, background=MENU_KEY_BG,
+                                          foreground=MENU_KEY_FG, height=MENU_HEIGHT, width=1,
+                                          highlightthickness=MENU_BORDER, highlightbackground=MENU_BORDER_COLOR,
+                                          highlightcolor=MENU_BORDER_COLOR, anchor=W)
+            tmpW.grid(column=1, row=i, sticky=N + S + E + W)
+
+            #Item
+            tmpW=Label(self._parent)
+            tmpW.configure(text=menuItem , font = MENU_FONT, background = MENU_BG,
+                                          foreground=MENU_FG, height=MENU_HEIGHT, width=8,
+                                          highlightthickness = MENU_BORDER, highlightbackground = MENU_BORDER_COLOR,
+                                          highlightcolor = MENU_BORDER_COLOR, anchor=W)
+            tmpW.grid(column=2, row=i, sticky=N + S + E + W)
+
+            #Data
+            dataStr=''
+            if menuItem=='Catalog':
+                if self._filterObj._catalog:
+                    dataStr=self._filterObj._catalog
+                else:
+                    dataStr='All'
+
+            if menuItem=='Type':
+                dataStr=self._filterObj._type
+
+            tmpW=Label(self._parent)
+            tmpW.configure(text=dataStr, font=MENU_FONT, background=MENU_BG,
+                                          foreground=MENU_FG, height=MENU_HEIGHT, width=MENU_WIDTH,
+                                          highlightthickness=MENU_BORDER, highlightbackground=MENU_BORDER_COLOR,
+                                          highlightcolor=MENU_BORDER_COLOR, anchor=W)
+            tmpW.grid(column=3, row=i, sticky=N + S + E + W)
+
+
+            i+=1
+
+
+    def keyHandle(self, keyEvent):
+        print "DATA KEY: %s - %s" % (keyEvent.keycode, keyEvent.char)
+        num = int(keyEvent.char)
+
+        if num==1:
+            self._filterObj.reset()
+            self.draw()
+
+        if num==2:
+            self._uiObj.pushStack(CatalogMenu(uiObj=self._uiObj, filterObj=self._filterObj))
+
+        if num==3:
+            self._uiObj.pushStack(TypeMenu(uiObj=self._uiObj, filterObj=self._filterObj))
 
 class SortMenu(ALMenu):
-    def __init__(self, filterObj):
-        super(SortMenu, self).__init__(filterObj=filterObj, menuTitle='Sort',
+    def __init__(self, uiObj, filterObj):
+        super(SortMenu, self).__init__(uiObj=uiObj, filterObj=filterObj, menuTitle='Sort',
                                           menuItemList=['ObjID', 'Other', 'Type', 'Const', 'Mag', 'RA'])
+    def keyHandle(self,keyEvent):
+        print "DATA KEY: %s - %s" % (keyEvent.keycode, keyEvent.char)
+        num = int(keyEvent.char)
+
+        if num==1:
+            self._filterObj._sortClause='PREFIX, CAST(OBJECT AS INTEGER) ASC'
+
+        if num==2:
+            self._filterObj._sortClause='OTHER, PREFIX, CAST(OBJECT AS INTEGER) ASC'
+
+        if num==3:
+            self._filterObj._sortClause = 'TYPE, PREFIX, CAST(OBJECT AS INTEGER) ASC'
+
+        if num==4:
+            self._filterObj._sortClause='CON, PREFIX, CAST(OBJECT AS INTEGER) ASC'
+
+        if num==5:
+            self._filterObj._sortClause='MAG ASC'
+
+        if num==6:
+            self._filterObj._sortClause = 'RA ASC'
+
+        self._uiObj.popStack()
 
 
 class AstroList(object):
@@ -276,7 +382,7 @@ class AstroList(object):
 
             else:
 
-                self.pushStack(FilterMenu(self._filterObj))
+                self.pushStack(FilterMenu(self, self._filterObj))
 
         elif keyEvent.keycode==KEY_B02:
             #SORT
@@ -284,7 +390,7 @@ class AstroList(object):
                 #Restore previous data objet
                 self.popStack()
             else:
-                self.pushStack(SortMenu(self._filterObj))
+                self.pushStack(SortMenu(self, self._filterObj))
 
         elif keyEvent.keycode==KEY_B08:
             #Back

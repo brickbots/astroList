@@ -43,6 +43,7 @@ DATA_HEIGHT=500
 
 
 if platform.system()=='Linux':
+    OBSLIST_PATH='/home/pi/python/astroList/obsList/obsList.skylist'
     AL_DB = '/home/pi/python/astroList/astroListDB.sqlite'
     PICTURE_PATH = '/home/pi/SAC_png'
     IMAGE_SIZE_FONT=['/usr/share/fonts/truetype/freefont/FreeSansBold.ttf',20]
@@ -62,6 +63,7 @@ if platform.system()=='Linux':
 
 
 else:
+    OBSLIST_PATH='/Users/rich/python/astroList/obsList/obsList.skylist'
     AL_DB = '/Users/rich/python/astroList/astroListDB.sqlite'
     PICTURE_PATH = '/Users/rich/Desktop/SAC_png'
     IMAGE_SIZE_FONT=['/System/Library/Fonts/SFNSDisplay-BoldItalic.otf',20]

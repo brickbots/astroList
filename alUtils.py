@@ -13,6 +13,23 @@ OBJ_FIELD_NAME=["PREFIX","OBJECT","OTHER","TYPE","CON","RA","DEC","MAG","SUBR",
 
 dbConn=None
 
+def loadObsList(sourceFile):
+    """
+    Loads an observing list into a list of object ID
+    :param sourceFile:
+    :return:
+    """
+
+    objList=[]
+    f=open(sourceFile)
+    for l in f:
+        if 'CatalogNumber' in l:
+            objList.append(l.split('=')[-1][:-1])
+
+    f.close()
+
+    return objList
+
 def createObjTableFromCSV(sourceFile='/Users/rich/Documents/Astronomy/lists/SAC_DeepSky_ver81/SAC_DeepSky_Ver81_QCQ_trimmed.TXT', targetFile=AL_DB, tableName='OBJECTS'):
     """
     Creates an object table of a source CSV file.  By default, uses SAC format
