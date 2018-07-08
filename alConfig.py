@@ -45,7 +45,7 @@ DATA_HEIGHT=500
 if platform.system()=='Linux':
     OBSLIST_PATH='/home/pi/python/astroList/obsList/obsList.skylist'
     AL_DB = '/home/pi/python/astroList/astroListDB.sqlite'
-    PICTURE_PATH = '/home/pi/SAC_png'
+    PICTURE_PATH = '/usr/share/skychart/data/pictures/sac'
     IMAGE_SIZE_FONT=['/usr/share/fonts/truetype/freefont/FreeSansBold.ttf',20]
 
     KEY_B01 = 57  # N
@@ -65,7 +65,7 @@ if platform.system()=='Linux':
 else:
     OBSLIST_PATH='/Users/rich/python/astroList/obsList/obsList.skylist'
     AL_DB = '/Users/rich/python/astroList/astroListDB.sqlite'
-    PICTURE_PATH = '/Users/rich/Desktop/SAC_png'
+    PICTURE_PATH = '/Applications/Cartes du Ciel/data/pictures/sac'
     IMAGE_SIZE_FONT=['/System/Library/Fonts/SFNSDisplay-BoldItalic.otf',20]
 
     KEY_B01 = 852087  # W

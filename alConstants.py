@@ -29,6 +29,7 @@ FILTER_TYPES={'Asterisms':['ASTER'],
               'Clusters':['CL+NB', 'GX+DN','LMCCN','LMCOC', 'OPNCL', 'SMCOC']
               }
 
+GAMMA_LIST=[.5, .75, 1, 1.25, 1.5, 1.75]
 
 OBJ_TYPES={"ASTER":"Asterism", "BRTNB":"Bright Nebula", "CL+NB":"Cluster with Nebulosity", "DRKNB":"Dark Nebula",
            "GALCL":"Galaxy cluster","GALXY":"Galaxy","GLOCL":"Globular Cluster",

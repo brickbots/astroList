@@ -2,10 +2,12 @@ from alConfig import *
 from Tkinter import *
 from alConstants import *
 import alUtils
+from astropy.io import fits
 from PIL import Image, ImageTk, ImageFont, ImageDraw
 import os
 import alSkyChart
 import textwrap
+import math
 
 def getObsListItems():
     objList=[]
@@ -40,6 +42,7 @@ class ALObjectInfo(object):
         self._disiplayMode='info'
         self._skyChart=None
         self._currentFilterHash=None
+        self._gammaIndex=2
 
 
     def _createLayout(self):
@@ -76,20 +79,35 @@ class ALObjectInfo(object):
     def _showImage(self, parent):
         self._buttonMethod(6,'INFO')
         self._buttonMethod(7,'LOG')
-
+        self._buttonMethod(9,'GAMMA')
 
         # Add image
         imageName=self._oInfo('PREFIX') + self._oInfo('OBJECT')
-        imageFile = '%s/%s.png' % (PICTURE_PATH, imageName)
+        imageFile = '%s/%s.fit' % (PICTURE_PATH, imageName)
 
         if not os.path.exists(imageFile):
 
             imageName = self._oInfo('OTHER').replace(' ','')
-            imageFile = '%s/%s.png' % (PICTURE_PATH, imageName)
+            imageFile = '%s/%s.fit' % (PICTURE_PATH, imageName)
 
         if os.path.exists(imageFile):
 
-            imgObj=Image.open(imageFile).convert('RGB')
+            #imgObj=Image.open(imageFile).convert('RGB')
+
+            image_file = fits.open(imageFile)
+            image_array = image_file[0].data
+
+            imgSize=440
+            img = Image.fromarray(image_array, 'L')
+            img = img.resize((imgSize, imgSize), resample=Image.BICUBIC)
+
+            img = Image.eval(img, lambda x: math.pow((float(x) / 255), GAMMA_LIST[self._gammaIndex]) * 255)
+            bandList = [img, Image.new('L', (imgSize,imgSize)),
+                        Image.new('L', (imgSize,imgSize))]
+
+            imgObj = Image.merge('RGB', bandList)
+
+
 
             #Add object dimensions
             font = ImageFont.truetype(IMAGE_SIZE_FONT[0], IMAGE_SIZE_FONT[1])
@@ -151,6 +169,7 @@ class ALObjectInfo(object):
     def _showDetails(self, parent):
         self._buttonMethod(6,'IMAGE')
         self._buttonMethod(7,'LOG')
+        self._buttonMethod(9, '')
 
         tmpRow=0
 
@@ -468,6 +487,13 @@ class ALObjectInfo(object):
 
             self._skyChart.findObject(objID.upper())
             self._skyChart.setFOV(40)
+        elif keyEvent.keycode == KEY_B09 and self._disiplayMode=='image':
+            self._gammaIndex -= 1
+            if self._gammaIndex < 0:
+                self._gammaIndex= len(GAMMA_LIST) -1
+
+            self.draw()
+
         else:
             #Numeric?
             if keyEvent.char.isdigit:
